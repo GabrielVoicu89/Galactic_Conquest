@@ -19,8 +19,10 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+Route::group(['middleware' => ['web']], function () {
 
+    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+    Route::post('/register/planet', [AuthController::class, 'store_planet'])->name('auth.store_planet');
 
-
-Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+});

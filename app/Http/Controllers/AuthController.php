@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Planet;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -25,7 +26,15 @@ class AuthController extends Controller
 
         // checking for errors with the validator. if the validator has any errors we send it in a response
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 400);
         }
 
         $validated = $validator->validated();
@@ -47,7 +56,15 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 400);
         }
 
 
@@ -57,15 +74,68 @@ class AuthController extends Controller
 
             // $user = Auth::user();
             // $token = $user->createToken('MyAppToken')->accessToken;
+            $request->session()->regenerate();
+            Auth::login(Auth::user());
 
             return response()->json([
                 // to do token
-                'message' => 'Loged successfully',
+                'message' => 'Loged successfully'
             ], 200);
         } else {
             return response()->json([
                 'message' => 'Username or password invalid',
             ], 401);
         }
+    }
+
+    public function store_planet(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|unique:planets',
+        ]);
+
+
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 400);
+        }
+        if (Auth::check()) {
+
+
+            $planet = new Planet();
+            $planet->name = $request->name;
+            $planet->user_id = Auth::user()->id;
+
+            $uniquePosition = false;
+
+            while (!$uniquePosition) {
+                $position_y = rand(0, 999);
+                $position_x = rand(0, 999);
+
+                // Check if any planet already exists with the same position
+                $existingPlanet = Planet::where('position_y', $position_y)
+                    ->where('position_x', $position_x)
+                    ->first();
+
+                // If no existing planet with the same position is found, set the position for the current planet
+                if (!$existingPlanet) {
+                    $planet->position_y = $position_y;
+                    $planet->position_x = $position_x;
+                    $uniquePosition = true;
+                }
+            }
+
+            $planet->save();
+
+            return response()->json(['message' => 'Planet created successfully.', 'planet' => $planet], 200);
+        }
+        return response()->json(['error' => 'Unauthenticated'], 401);
     }
 }
