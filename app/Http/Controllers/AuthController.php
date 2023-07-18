@@ -20,7 +20,7 @@ class AuthController extends Controller
             'email' => 'required|email|max:100|unique:users',
             'password' => 'required|string|max:100|min:4',
             'username' => 'required|string|unique:users',
-            'birth_date' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+            'birth_date' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d')
         ]);
 
         // checking for errors with the validator. if the validator has any errors we send it in a response
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'username' => 'required',
-            'password' => 'required',
+            'password' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -60,11 +60,11 @@ class AuthController extends Controller
 
             return response()->json([
                 // to do token
-                'message' => 'Loged successfully',
+                'message' => 'Loged successfully'
             ], 200);
         } else {
             return response()->json([
-                'message' => 'Username or password invalid',
+                'message' => 'Username or password invalid'
             ], 401);
         }
     }
