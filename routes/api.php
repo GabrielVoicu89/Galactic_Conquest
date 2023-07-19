@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,10 +20,16 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::group(['middleware' => ['web']], function () {
+// Route::group(['middleware' => ['web']], function () {
 
-    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
-    Route::post('/register/planet', [AuthController::class, 'store_planet'])->name('auth.store_planet');
+// });
 
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+//public routes
+Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    //protected routes
+    Route::post('/login/planet', [AuthController::class, 'store_planet'])->name('auth.store_planet');
 });

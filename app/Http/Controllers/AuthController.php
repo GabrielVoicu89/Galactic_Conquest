@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\SanctumServiceProvider;
 
 class AuthController extends Controller
 {
@@ -72,14 +73,16 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
 
-            // $user = Auth::user();
-            // $token = $user->createToken('MyAppToken')->accessToken;
-            $request->session()->regenerate();
-            Auth::login(Auth::user());
+            $user = User::where('username', $request->username)->first();
+            $token = $user->createToken('MyAppToken')->plainTextToken;
+
+            // $request->session()->regenerate();
+            // Auth::login(Auth::user());
 
             return response()->json([
                 // to do token
-                'message' => 'Loged successfully'
+                'message' => 'Loged successfully',
+                'token' => $token
             ], 200);
         } else {
             return response()->json([
@@ -106,36 +109,37 @@ class AuthController extends Controller
 
             return response()->json(['errors' => $errorsFormatted], 400);
         }
-        if (Auth::check()) {
+        // if (Auth::check()) {
 
+        $planet = new Planet();
+        $planet->name = $request->name;
+        $planet->user_id = Auth::user()->id;
 
-            $planet = new Planet();
-            $planet->name = $request->name;
-            $planet->user_id = Auth::user()->id;
+        $uniquePosition = false;
 
-            $uniquePosition = false;
+        while (!$uniquePosition) {
+            $position_y = rand(0, 999);
+            $position_x = rand(0, 999);
 
-            while (!$uniquePosition) {
-                $position_y = rand(0, 999);
-                $position_x = rand(0, 999);
+            // Check if any planet already exists with the same position
+            $existingPlanet = Planet::where('position_y', $position_y)
+                ->where('position_x', $position_x)
+                ->first();
 
-                // Check if any planet already exists with the same position
-                $existingPlanet = Planet::where('position_y', $position_y)
-                    ->where('position_x', $position_x)
-                    ->first();
-
-                // If no existing planet with the same position is found, set the position for the current planet
-                if (!$existingPlanet) {
-                    $planet->position_y = $position_y;
-                    $planet->position_x = $position_x;
-                    $uniquePosition = true;
-                }
+            // If no existing planet with the same position is found, set the position for the current planet
+            if (!$existingPlanet) {
+                $planet->position_y = $position_y;
+                $planet->position_x = $position_x;
+                $uniquePosition = true;
             }
-
-            $planet->save();
-
-            return response()->json(['message' => 'Planet created successfully.', 'planet' => $planet], 200);
         }
-        return response()->json(['error' => 'Unauthenticated'], 401);
+
+        $planet->save();
+
+        // to do default resource , warehouse 
+
+        return response()->json(['message' => 'Planet created successfully.', 'planet' => $planet], 200);
+        // }
+        // return response()->json(['error' => 'Unauthenticated'], 401);
     }
 }
