@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +28,12 @@ use Illuminate\Support\Facades\Route;
 //public routes
 Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+Route::post('/register/planet/{userId}', [AuthController::class, 'store_planet'])->name('auth.store_planet'); // acces it only once after register
+Route::post('/resource/{userId}', [ResourceController::class, 'defaultResource'])->name('default_resource'); // acces it only once after creating the planet
 
 Route::middleware('auth:sanctum')->group(function () {
 
     //protected routes
-    Route::post('/login/planet', [AuthController::class, 'store_planet'])->name('auth.store_planet');
+
+
 });

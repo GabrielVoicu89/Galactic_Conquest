@@ -13,18 +13,19 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
-        Schema::create('planets', function (Blueprint $table) {
+        Schema::create('resources', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->unique();
-            $table->string('name', 50)->unique();
-            $table->integer('position_y')->length(3);
-            $table->integer('position_x')->length(3);
+            $table->integer('ore')->unsigned();
+            $table->integer('fuel')->unsigned();
+            $table->integer('energy')->unsigned();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
+
 
         Schema::enableForeignKeyConstraints();
     }
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('planets');
+        Schema::dropIfExists('resources');
     }
 };
