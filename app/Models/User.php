@@ -52,4 +52,19 @@ class User extends Authenticatable
     {
         return $this->hasOne(Planet::class);
     }
+
+    public function resource()
+    {
+        return $this->hasOne(Resource::class);
+    }
+
+    public function infrastuctures()
+    {
+        return $this->hasMany(Infrastructure::class);
+    }
+
+    public function powerplants()
+    {
+        return $this->hasMany(PowerPlant::class);
+    }
 }
