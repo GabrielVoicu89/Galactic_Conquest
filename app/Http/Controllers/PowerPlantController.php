@@ -14,7 +14,9 @@ class PowerPlantController extends Controller
     {
         $resources = Resource::where('user_id', Auth::user()->id)->first();
         $availableOre = $resources->ore;
+        $energy = $resources->energy;
 
+        //codition to check if has enough resources to create it
         if ($availableOre >= 500) {
 
             $powerPlant = new PowerPlant();
@@ -27,8 +29,8 @@ class PowerPlantController extends Controller
             $newAvailableOre = $availableOre - $powerPlant->construction_cost;
 
 
-            // update resource table
-            Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre,]);
+            // update resource table decreasing the cost of the powerplant and increasing the energy that comes with the powerplant
+            Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $energy + 5]);
 
             return response()->json(['message' => 'Power plant successfuly created', 'powerPlant' => $powerPlant], 200);
         } else {

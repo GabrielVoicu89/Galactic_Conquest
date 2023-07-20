@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PowerPlant::class);
     }
+
+    public function warehouses()
+    {
+        return $this->hasMany(Warehouse::class);
+    }
 }

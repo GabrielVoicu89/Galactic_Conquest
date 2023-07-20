@@ -115,6 +115,7 @@ class AuthController extends Controller
 
             return response()->json(['errors' => $errorsFormatted], 400);
         }
+        // user exist and send 404 ..... TO DO
 
         //security to check if the user already has a planet
         $userHasPlanet = Planet::where('user_id', $userId)->first();

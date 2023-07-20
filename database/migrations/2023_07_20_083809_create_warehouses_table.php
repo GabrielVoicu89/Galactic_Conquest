@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::disableForeignKeyConstraints();
-        Schema::create('infrastructures', function (Blueprint $table) {
+
+        Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('type');
+            $table->integer('capacity')->unsigned();
             $table->integer('level')->unsigned();
-            $table->integer('production_hour')->unsigned();
             $table->integer('construction_cost')->unsigned();
             $table->dateTime('finished_at');
             $table->timestamps();
@@ -26,6 +26,7 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
+
         Schema::enableForeignKeyConstraints();
     }
 
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('infrastructures');
+        Schema::dropIfExists('warehouses');
     }
 };
