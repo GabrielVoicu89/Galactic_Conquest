@@ -29,6 +29,7 @@ use App\Http\Controllers\InfrastructureController;
 // });
 
 //public routes
+
 Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/register/planet/{userId}', [AuthController::class, 'store_planet'])->name('auth.store_planet'); // acces it only once after register
@@ -40,8 +41,19 @@ Route::post('/default_warehouses/{userId}', [WarehouseController::class, 'defaul
 Route::middleware('auth:sanctum')->group(function () {
 
     //protected routes
+    // MINE
     Route::post('/create/mine', [InfrastructureController::class, 'buildMine'])->name('store_mine');
+    Route::get('/mines', [InfrastructureController::class, 'getMines'])->name('get_mines');
+
+    //REFINERY
     Route::post('/create/refinery', [InfrastructureController::class, 'buildRefinery'])->name('store_refinery');
+    Route::get('/refineries', [InfrastructureController::class, 'getRefineries'])->name('get_refineries');
+
+    //POWER PLANTS
     Route::post('/create/powerplant', [PowerPlantController::class, 'buildPowerPlant'])->name('store_power_plant');
+    Route::get('/powerplants', [PowerPlantController::class, 'getPowerPlants'])->name('get_powerplants');
+
+    //WAREHOUSES
     Route::post('/create/warehouse', [WarehouseController::class, 'buildWarehouse'])->name('store_warehouse');
+    Route::get('/warehouses', [WarehouseController::class, 'getWarehouses'])->name('get_warehouse');
 });

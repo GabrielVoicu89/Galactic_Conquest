@@ -74,4 +74,24 @@ class InfrastructureController extends Controller
             return response()->json(['message' => 'You do not have enough resources'], 401);
         }
     }
+
+
+    public function getRefineries()
+    {
+        $refineries = Infrastructure::where('user_id', Auth::user()->id)
+            ->where('type', 'refinery')
+            ->get();
+        // dd($warehouses);
+        return response()->json(['refineries' => $refineries], 200);
+    }
+
+
+    public function getMines()
+    {
+        $mines = Infrastructure::where('user_id', Auth::user()->id)
+            ->where('type', 'mine')
+            ->get();
+        // dd($warehouses);
+        return response()->json(['mines' => $mines], 200);
+    }
 }

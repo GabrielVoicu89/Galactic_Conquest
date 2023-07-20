@@ -37,4 +37,16 @@ class PowerPlantController extends Controller
             return response()->json(['message' => 'You do not have enough resources'], 401);
         }
     }
+    public function getPowerPlants()
+    {
+
+        // $powerPlants = PowerPlant::where('user_id', Auth::user()->id)->first();
+        // // dd($powerPlants);
+        // if ($powerPlants) {
+        $powerPlants = PowerPlant::where('user_id', Auth::user()->id)->get();
+        return response()->json(['powerPlants' => $powerPlants], 200);
+        // } else {
+        //     return response()->json(['message' => 'This user does not have any powerplants'], 404);
+        // }
+    }
 }

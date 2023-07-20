@@ -59,4 +59,11 @@ class WarehouseController extends Controller
             return response()->json(['message' => 'You do not have enough resources'], 401);
         }
     }
+
+    public function getWarehouses()
+    {
+        $warehouses = Warehouse::where('user_id', Auth::user()->id)->get();
+        // dd($warehouses);
+        return response()->json(['warehouses' => $warehouses], 200);
+    }
 }
