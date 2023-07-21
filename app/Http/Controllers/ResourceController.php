@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Resource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ResourceController extends Controller
 {
@@ -24,5 +25,11 @@ class ResourceController extends Controller
 
             return response()->json(['resource' => $resource], 200);
         }
+    }
+
+    public function getResource()
+    {
+        $resource = Resource::where('user_id', Auth::user()->id)->get();
+        return response()->json(['resource' => $resource], 200);
     }
 }

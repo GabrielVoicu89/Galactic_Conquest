@@ -41,6 +41,10 @@ Route::post('/default_warehouses/{userId}', [WarehouseController::class, 'defaul
 Route::middleware('auth:sanctum')->group(function () {
 
     //protected routes
+
+    //RESOURCE
+    Route::get('/resource', [ResourceController::class, 'getResource']);
+
     // MINE
     Route::post('/create/mine', [InfrastructureController::class, 'buildMine'])->name('store_mine');
     Route::get('/mines', [InfrastructureController::class, 'getMines'])->name('get_mines');
