@@ -66,7 +66,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //SHIP YARDS
     Route::post('/create/shipyard', [ShipYardController::class, 'buildShipYard']);
+    Route::get('/shipyards', [ShipYardController::class, 'getShipYards']);
 
     //SHIPS
-    Route::post('/create/hunter/{shipYardID}', [ShipController::class, 'buildHunter']);
+    Route::post('/create/hunter/{shipYardId}', [ShipController::class, 'buildHunter']);
+    Route::post('/create/frigate/{shipYardId}', [ShipController::class, 'buildFrigate']);
+    Route::post('/create/cruiser/{shipYardId}', [ShipController::class, 'buildCruiser']);
+    Route::post('/create/destroyer/{shipYardId}', [ShipController::class, 'buildDestroyer']);
+    Route::get('/shipyard/{shipYardId}/ships', [ShipController::class, 'getShipYardShips']);
+    Route::get('/ships', [ShipController::class, 'getAllShips']);
+
+    Route::post('/claim/ship/{shipYardID}', [ShipController::class, 'claimShip']);
 });

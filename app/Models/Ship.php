@@ -17,6 +17,7 @@ class Ship extends Model
         'construction_cost',
         'energy_consumption',
         'finished_at',
+        'claimed'
 
     ];
 

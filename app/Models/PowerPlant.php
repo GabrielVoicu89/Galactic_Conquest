@@ -14,6 +14,7 @@ class PowerPlant extends Model
         'user_id',
         'level',
         'construction_cost',
+        'power_energy',
         'finished_at',
     ];
 

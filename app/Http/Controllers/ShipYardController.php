@@ -35,4 +35,11 @@ class ShipYardController extends Controller
             return response()->json(['message' => 'You do not have enough resources'], 401);
         }
     }
+
+    public function getShipYards()
+    {
+        $shipYards = ShipYard::where('user_id', Auth::user()->id)->get();
+
+        return response()->json(['shipYards' => $shipYards], 200);
+    }
 }

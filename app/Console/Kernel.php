@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('update:ore')->everyFiveSeconds();
+        $schedule->command('update:ore')->everyTenSeconds();
     }
 
     /**

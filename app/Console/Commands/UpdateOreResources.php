@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateOreResources extends Command
 {
@@ -42,6 +43,7 @@ class UpdateOreResources extends Command
             $currentTime = Carbon::now();
 
             if ($currentTime->lt($finishedAt)) {
+                // lt = less than
                 // The infrastructure is not finished yet, skip production
                 continue;
             }
@@ -83,6 +85,7 @@ class UpdateOreResources extends Command
                     ->update(['fuel' => $newResource]);
             }
         }
+
 
         $this->info('Ore and Fuel resources updated successfully.');
     }

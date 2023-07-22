@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->integer('level')->unsigned();
             $table->integer('construction_cost')->unsigned();
+            $table->integer('energy_produce')->unsigned();
             $table->timestamps();
             $table->dateTime('finished_at');
 

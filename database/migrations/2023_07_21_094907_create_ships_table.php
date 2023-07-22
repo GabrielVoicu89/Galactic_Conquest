@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type');
             $table->unsignedInteger('construction_cost');
             $table->unsignedInteger('energy_consumption');
+            $table->boolean('claimed')->default(false);
             $table->dateTime('finished_at');
             $table->timestamps();
 

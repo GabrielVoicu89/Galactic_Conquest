@@ -24,13 +24,15 @@ class PowerPlantController extends Controller
             $powerPlant->level = 1;
             $powerPlant->construction_cost = 500;
             $powerPlant->finished_at = Carbon::now()->addHours(1);
+            $powerPlant->energy_produce = 5;
             $powerPlant->save();
 
             $newAvailableOre = $availableOre - $powerPlant->construction_cost;
+            $energyProduce = $powerPlant->energy_produce;
 
 
             // update resource table decreasing the cost of the powerplant and increasing the energy that comes with the powerplant
-            Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $energy + 5]);
+            Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $energy + $energyProduce]);
 
             return response()->json(['message' => 'Power plant successfuly created', 'powerPlant' => $powerPlant], 200);
         } else {
