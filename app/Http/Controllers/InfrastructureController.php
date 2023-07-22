@@ -2,25 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Infrastructure;
-use App\Models\Resource;
 use Carbon\Carbon;
+use App\Models\Resource;
 use Illuminate\Http\Request;
+
+use App\Models\Infrastructure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Nette\Utils\Validators;
 
 class InfrastructureController extends Controller
 {
     //
     public function buildMine(Request $request)
     {
+        $validator = Validators::make($request->all(), [
+            'type' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 400);
+        }
+
         $resources = Resource::where('user_id', Auth::user()->id)->first();
 
         $availableOre = $resources->ore;
-        $avalableEnergy = $resources->energy;
+        $availableEnergy = $resources->energy;
 
         // dd($availableOre);
 
-        if ($availableOre >= 300 && $avalableEnergy >= 1) {
+        if ($availableOre >= 300 && $availableEnergy >= 1) {
             $mine = new Infrastructure();
             $mine->user_id = Auth::user()->id;
             $mine->type = $request->type;
@@ -30,7 +48,7 @@ class InfrastructureController extends Controller
             $mine->finished_at = Carbon::now()->addHours(1);
             $mine->save();
             $newAvailableOre = $availableOre - $mine->construction_cost;
-            $newAvailableEnergy = $avalableEnergy - 1;
+            $newAvailableEnergy = $availableEnergy - 1;
             // dd($newAvailableOre);
 
             // update resource table
@@ -45,14 +63,29 @@ class InfrastructureController extends Controller
 
     public function buildRefinery(Request $request)
     {
+        $validator = Validators::make($request->all(), [
+            'type' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 400);
+        }
+
         $resources = Resource::where('user_id', Auth::user()->id)->first();
 
         $availableOre = $resources->ore;
-        $avalableEnergy = $resources->energy;
+        $availableEnergy = $resources->energy;
 
         // dd($availableOre);
 
-        if ($availableOre >= 300 && $avalableEnergy >= 1) {
+        if ($availableOre >= 300 && $availableEnergy >= 1) {
             $refinery = new Infrastructure();
             $refinery->user_id = Auth::user()->id;
             $refinery->type = $request->type;
@@ -63,7 +96,7 @@ class InfrastructureController extends Controller
             $refinery->save();
 
             $newAvailableOre = $availableOre - $refinery->construction_cost;
-            $newAvailableEnergy = $avalableEnergy - 2;
+            $newAvailableEnergy = $availableEnergy - 2;
             // dd($newAvailableOre);
 
             // update resource table

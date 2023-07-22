@@ -4,7 +4,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ShipController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\ShipYardController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PowerPlantController;
 use App\Http\Controllers\InfrastructureController;
@@ -42,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //protected routes
 
+
     //RESOURCE
     Route::get('/resource', [ResourceController::class, 'getResource']);
 
@@ -60,4 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //WAREHOUSES
     Route::post('/create/warehouse', [WarehouseController::class, 'buildWarehouse'])->name('store_warehouse');
     Route::get('/warehouses', [WarehouseController::class, 'getWarehouses'])->name('get_warehouse');
+
+    //SHIP YARDS
+    Route::post('/create/shipyard', [ShipYardController::class, 'buildShipYard']);
+
+    //SHIPS
+    Route::post('/create/hunter/{shipYardID}', [ShipController::class, 'buildHunter']);
 });
