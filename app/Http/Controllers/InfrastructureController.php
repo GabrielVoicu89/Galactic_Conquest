@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use App\Models\Infrastructure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Nette\Utils\Validators;
+
 
 class InfrastructureController extends Controller
 {
     //
     public function buildMine(Request $request)
     {
-        $validator = Validators::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'type' => 'required|string',
         ]);
 
@@ -63,7 +63,7 @@ class InfrastructureController extends Controller
 
     public function buildRefinery(Request $request)
     {
-        $validator = Validators::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'type' => 'required|string',
         ]);
 
