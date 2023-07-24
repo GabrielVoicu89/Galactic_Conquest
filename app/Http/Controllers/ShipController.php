@@ -65,7 +65,7 @@ class ShipController extends Controller
                         //updating the resources : ore and energy
                         Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $availableEnergy - $ship->energy_consumption]);
 
-                        return response()->json(['message' => 'Hunter created successfully', 'ship' => $ship], 200);
+                        return response()->json(['message' => ucfirst($ship->type) . ' created successfully', 'ship' => $ship], 200);
                     } else {
                         return response()->json(['message' => 'You do not have enough resources'], 401);
                     }
@@ -132,7 +132,7 @@ class ShipController extends Controller
                         //updating the resources : ore and energy
                         Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $availableEnergy - $ship->energy_consumption]);
 
-                        return response()->json(['message' => 'Frigate created successfully', 'ship' => $ship], 200);
+                        return response()->json(['message' => ucfirst($ship->type) . ' created successfully', 'ship' => $ship], 200);
                     } else {
                         return response()->json(['message' => 'You do not have enough resources'], 401);
                     }
@@ -199,7 +199,7 @@ class ShipController extends Controller
                         //updating the resources : ore and energy
                         Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $availableEnergy - $ship->energy_consumption]);
 
-                        return response()->json(['message' => 'Cruiser created successfully', 'ship' => $ship], 200);
+                        return response()->json(['message' => ucfirst($ship->type) . ' created successfully', 'ship' => $ship], 200);
                     } else {
                         return response()->json(['message' => 'You do not have enough resources'], 401);
                     }
@@ -266,7 +266,7 @@ class ShipController extends Controller
                         //updating the resources : ore and energy
                         Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $availableEnergy - $ship->energy_consumption]);
 
-                        return response()->json(['message' => 'Vladimir created successfully', 'ship' => $ship], 200);
+                        return response()->json(['message' => ucfirst($ship->type) . ' created successfully', 'ship' => $ship], 200);
                     } else {
                         return response()->json(['message' => 'You do not have enough resources'], 401);
                     }

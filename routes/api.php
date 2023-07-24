@@ -10,6 +10,7 @@ use App\Http\Controllers\ShipYardController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PowerPlantController;
 use App\Http\Controllers\InfrastructureController;
+use App\Http\Controllers\PlanetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,4 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ships', [ShipController::class, 'getAllShips']);
 
     Route::post('/claim/ship/{shipYardID}', [ShipController::class, 'claimShip']);
+
+    //PLANETS
+
+    Route::get('/positions', [PlanetController::class, 'getPositions']);
 });
