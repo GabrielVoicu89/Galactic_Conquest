@@ -326,6 +326,7 @@ class ShipController extends Controller
             ->latest() // Orders the results by the 'created_at' column in descending order
             ->first(); // Retrieves the first (last in descending order) element of the result
 
+        return response()->json(['ship' => $ship]);
     }
 
     public function getAllShips()
