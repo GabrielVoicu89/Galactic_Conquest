@@ -318,10 +318,19 @@ class ShipController extends Controller
         }
     }
 
-    public function getShipYardShips($shipYardId)
+    public function getShipConstructing($shipYardId)
     {
-        $ships = Ship::where('ship_yard_id', $shipYardId)
+        //getting the last ship created by this shipyard since it can create only one at the time
+        $ship = Ship::where('ship_yard_id', $shipYardId)
             ->where('user_id', Auth::user()->id)
+            ->latest() // Orders the results by the 'created_at' column in descending order
+            ->first(); // Retrieves the first (last in descending order) element of the result
+
+    }
+
+    public function getAllShips()
+    {
+        $ships = Ship::where('user_id', Auth::user()->id)
             ->get();
         $destroyers = $ships->where('type', 'destroyer');
         $frigates = $ships->where('type', 'frigate');

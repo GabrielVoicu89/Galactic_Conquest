@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -17,6 +19,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('update:ore')->everyTenSeconds();
+        // $schedule->call(function () {
+        //     Artisan::call('update:ore');
+        //     Log::info('Scheduled task executed at: ' . now());
+        // })->everyMinute();
     }
 
     /**
