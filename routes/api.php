@@ -86,5 +86,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/planet', [PlanetController::class, 'getPlanet']);
 
     //BATTLES
-    Route::post('/attack/{defenderId}', [BattleController::class, 'attack']);
+    Route::get('/attack/{defenderId}', [BattleController::class, 'attack']);
 });

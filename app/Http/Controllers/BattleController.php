@@ -12,9 +12,17 @@ class BattleController extends Controller
     public function attack($defenderId)
     {
         $attackerShips = Ship::where('user_id', Auth::user()->id)
-            ->whereDate('finished_at', '<', Carbon::now())
+            ->where('finished_at', '<', Carbon::now())
+            ->where('claimed', true)
+            ->get();
+        $defenderShips = Ship::where('user_id', $defenderId)
+            ->where('finished_at', '<', Carbon::now())
+            ->where('claimed', true)
             ->get();
 
-        return response()->json(['attackerShips' => $attackerShips], 200);
+        return response()->json([
+            'attackerShips' => $attackerShips,
+            'defenderShips' => $defenderShips
+        ], 200);
     }
 }
