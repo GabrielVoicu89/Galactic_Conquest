@@ -156,4 +156,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Planet created successfully.', 'planet' => $planet], 200);
         }
     }
+
+    public function getUser()
+    {
+        $user = User::where('id', Auth::user()->id)->get();
+
+        return response()->json(['user' => $user], 200);
+    }
 }

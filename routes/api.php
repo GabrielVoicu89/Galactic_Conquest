@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BattleController;
 use App\Http\Controllers\ShipController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ShipYardController;
@@ -45,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //protected routes
 
+    //USERS
+    Route::get('/user', [AuthController::class, 'getUser']);
 
     //RESOURCE
     Route::get('/resource', [ResourceController::class, 'getResource']);
@@ -74,13 +77,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create/frigate/{shipYardId}', [ShipController::class, 'buildFrigate']);
     Route::post('/create/cruiser/{shipYardId}', [ShipController::class, 'buildCruiser']);
     Route::post('/create/destroyer/{shipYardId}', [ShipController::class, 'buildDestroyer']);
-    // Route::get('/shipyard/{shipYardId}/ships', [ShipController::class, 'getShipYardShips']);
     Route::get('/ships', [ShipController::class, 'getAllShips']);
-
     Route::post('/claim/ship/{shipYardID}', [ShipController::class, 'claimShip']);
 
     //PLANETS
-
     Route::get('/positions', [PlanetController::class, 'getPositions']);
     Route::get('/planet', [PlanetController::class, 'getPlanet']);
+
+    //BATTLES
+    Route::post('/attack/{defenderId}', [BattleController::class, 'attack']);
 });

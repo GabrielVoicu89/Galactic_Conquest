@@ -83,4 +83,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ship::class);
     }
+
+    public function battles()
+    {
+        return $this->hasMany(Battle::class);
+    }
 }
