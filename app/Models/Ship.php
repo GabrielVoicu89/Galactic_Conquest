@@ -16,8 +16,11 @@ class Ship extends Model
         'type',
         'construction_cost',
         'energy_consumption',
+        'fuel_consumption',
         'finished_at',
-        'claimed'
+        'claimed',
+        'attack',
+        'defense'
 
     ];
 

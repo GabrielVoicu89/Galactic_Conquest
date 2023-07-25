@@ -53,7 +53,10 @@ class ShipController extends Controller
                         $ship->ship_yard_id =  $shipYardId;
                         $ship->type = $request->type;
                         $ship->construction_cost = 50;
+                        $ship->attack = 50;
+                        $ship->defense = 50;
                         $ship->energy_consumption = 1;
+                        $ship->fuel_consumption = 1;
                         $ship->finished_at = Carbon::now()->addHour();
                         $ship->save();
 
@@ -120,7 +123,10 @@ class ShipController extends Controller
                         $ship->ship_yard_id =  $shipYardId;
                         $ship->type = $request->type;
                         $ship->construction_cost = 200;
+                        $ship->attack = 200;
+                        $ship->defense = 200;
                         $ship->energy_consumption = 2;
+                        $ship->fuel_consumption = 2;
                         $ship->finished_at = Carbon::now()->addHours(2);
                         $ship->save();
 
@@ -187,7 +193,10 @@ class ShipController extends Controller
                         $ship->ship_yard_id =  $shipYardId;
                         $ship->type = $request->type;
                         $ship->construction_cost = 800;
+                        $ship->attack = 800;
+                        $ship->defense = 800;
                         $ship->energy_consumption = 4;
+                        $ship->fuel_consumption = 4;
                         $ship->finished_at = Carbon::now()->addHours(4);
                         $ship->save();
 
@@ -254,7 +263,10 @@ class ShipController extends Controller
                         $ship->ship_yard_id =  $shipYardId;
                         $ship->type = $request->type;
                         $ship->construction_cost = 2000;
+                        $ship->attack = 2000;
+                        $ship->defense = 2000;
                         $ship->energy_consumption = 8;
+                        $ship->fuel_consumption = 8;
                         $ship->finished_at = Carbon::now()->addHours(8);
                         $ship->save();
 
@@ -297,6 +309,7 @@ class ShipController extends Controller
             // dd($currentTime->lt($finishedAt));
 
             if ($finishedAt->lt($currentTime)) {
+
                 //when claiming the ship we set the shipyard to construction_state false
                 ShipYard::where('id', $shipYardId)->update(['construction_state' => false]);
 
@@ -332,6 +345,8 @@ class ShipController extends Controller
     public function getAllShips()
     {
         $ships = Ship::where('user_id', Auth::user()->id)
+            ->where('finished_at', '<', Carbon::now())
+            ->where('claimed', true)
             ->get();
         $destroyers = $ships->where('type', 'destroyer');
         $frigates = $ships->where('type', 'frigate');
