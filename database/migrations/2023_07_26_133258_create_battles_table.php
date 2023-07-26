@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('attacker_id');
             $table->unsignedBigInteger('defender_id');
             $table->boolean('win');
-            $table->integer('resources_won');
             $table->timestamps();
 
             $table->foreign('attacker_id')->references('id')->on('users')

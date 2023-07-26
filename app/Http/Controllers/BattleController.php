@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Battle;
 use Carbon\Carbon;
 use App\Models\Ship;
 use App\Models\Planet;
 use App\Models\Resource;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
 
 class BattleController extends Controller
 {
@@ -30,15 +32,29 @@ class BattleController extends Controller
 
         $toDestroy = ceil($ships->count() * 0.30);  // 30% of this ship type, rounded up
 
+        $destroyedShips = [];  // Store the types of destroyed ships
+
         for ($i = 0; $i < $toDestroy; $i++) {
-            // Remove the ship and delete it from the database
+
+            // Remove the ship  from the collection.
             $ship = $ships->shift();
+
+            //if this type of ship wasnt destroyed yet we set it to 0 first and after we add one with $destroyedShips[$ship->type]++;
+            if (!isset($destroyedShips[$ship->type])) {
+                $destroyedShips[$ship->type] = 0;
+            }
+            $destroyedShips[$ship->type]++;
+
+            //Remove the ship  from the database
             $ship->delete();
         }
+
+        return $destroyedShips;
     }
 
     public function attack($defenderId)
     {
+        //getting the ships for attacker and defender 
         $attackerShips = Ship::where('user_id', Auth::user()->id)
             ->where('finished_at', '<', Carbon::now())
             ->where('claimed', true)
@@ -78,6 +94,7 @@ class BattleController extends Controller
 
             $fuelConsumed = 0;
 
+            //calculating the fuel consumption for attacker ships
             foreach ($attackerShips as $ship) {
 
                 $fuelConsumption = $ship->fuel_consumption;
@@ -87,17 +104,22 @@ class BattleController extends Controller
                 $fuelConsumed += $fuel;
             }
 
-            //getting the fuel for the attacker
-            $resource = Resource::where('user_id', Auth::user()->id)->first();
-            $attackerFuel = $resource->fuel;
+            //getting the resource for attacker and defender
+            $resourceAttacker = Resource::where('user_id', Auth::user()->id)->first();
+            $resourceDefender = Resource::where('user_id', $defenderId)->first();
+
+            //getting the furel for the attacker
+            $attackerFuel = $resourceAttacker->fuel;
 
             if ($fuelConsumed <= $attackerFuel) {
                 // removing the fuel from the attacker's resource
-                $resource->update(['fuel' => $attackerFuel - $fuelConsumed]);
+                $resourceAttacker->update(['fuel' => $attackerFuel - $fuelConsumed]);
 
                 // ZA ATTACK
                 $round = 1;
                 $battleLog = [];
+                $attacker = User::where('id', Auth::user()->id)->first()->username;
+                $defender = User::where('id', $defenderId)->first()->username;
 
                 while (count($attackerShips) > 0 && count($defenderShips) > 0) {
                     // Calculate the total attack points and defense points for both attacker and defender
@@ -107,12 +129,12 @@ class BattleController extends Controller
                     // Determine the round winner and apply losses
                     if ($attackerPoints > $defenderPoints) {
                         // Attacker wins the round
-                        $this->removeShips($defenderShips);
-                        $roundWinner = 'Attacker';
+                        $destroyedShips = $this->removeShips($defenderShips);
+                        $roundWinner = $attacker;
                     } else {
                         // Defender wins the round
-                        $this->removeShips($attackerShips);
-                        $roundWinner = 'Defender';
+                        $destroyedShips = $this->removeShips($attackerShips);
+                        $roundWinner = $defender;
                     }
 
                     // Add battle details to the battle log
@@ -121,22 +143,73 @@ class BattleController extends Controller
                         'winner' => $roundWinner,
                         'attacker_ships' => count($attackerShips),
                         'defender_ships' => count($defenderShips),
+                        'destroyed_ships' => $destroyedShips,  // Include destroyed ship types in the battle log
                     ];
 
                     // Increment the round number
                     $round++;
                 }
 
+                // deciding the winner 
+                $battleWinner = '';
 
+                if (count($attackerShips) > 0) {
+                    $battleWinner = $attacker;
+                } else {
+                    $battleWinner = $defender;
+                }
+
+                // adding the winner to battle log
+                // $battleLog['overall_winner'] = $battleWinner;
+
+                if ($battleWinner === $attacker) {
+                    //calculate 10% of the resources from the defender to add it to the attacker resource
+                    $gainedOre = ceil($resourceDefender->ore * 0.1);
+                    $gainedFuel = ceil($resourceDefender->fuel * 0.1);
+
+                    // adding the gained or to the attacker
+                    $totalAttackerOre = $resourceAttacker->ore + $gainedOre;
+                    $totalAttackerFuel = $resourceAttacker->fuel + $gainedFuel;
+
+                    //updating the database for the attacker
+                    Resource::where('user_id', Auth::user()->id)->update(['ore' => $totalAttackerOre]);
+                    Resource::where('user_id', Auth::user()->id)->update(['fuel' => $totalAttackerFuel]);
+
+                    //removing the gained resources from the defender
+                    $totalDefenderOre = $resourceDefender->ore - $gainedOre;
+                    $totalDefenderFuel = $resourceDefender->fuel - $gainedFuel;
+
+                    //updating the database for the defender
+                    Resource::where('user_id', $defenderId)->update(['ore' => $totalDefenderOre]);
+                    Resource::where('user_id', $defenderId)->update(['fuel' => $totalDefenderFuel]);
+
+                    // creating the battle column in the database if the attacker win
+                    $battle = new Battle();
+                    $battle->attacker_id = Auth::user()->id;
+                    $battle->defender_id = $defenderId;
+                    $battle->win = true;
+                    $battle->save();
+                } else {
+
+                    // creating the battle column in the database if the attacker loose
+                    $battle = new Battle();
+                    $battle->attacker_id = Auth::user()->id;
+                    $battle->defender_id = $defenderId;
+                    $battle->win = false;
+                    $battle->save();
+                }
 
                 return response()->json([
                     // 'attackerShips' => $attackerShips,
                     // 'defenderShips' => $defenderShips,
                     // 'distance' => $distance,
-                    'fuelConsumed' => $fuelConsumed,
-                    'attackerFuel' => $attackerFuel,
-                    'battle_log' => $battleLog
-                ], 200);
+                    // 'fuelConsumed' => $fuelConsumed,
+                    // 'attackerFuel' => $attackerFuel,
+                    'battle_log' => $battleLog,
+                    'overall_winner' => $battleWinner,
+                    'gainedOre' => $gainedOre,
+                    'gainedFuel' => $gainedFuel
+                ], 201);
             } else {
                 return response()->json(['message' => 'You do not have enough fuel for this destination.', 'fuelConsumed' => $fuelConsumed, 'attackerFuel' => $attackerFuel,], 401);
             }

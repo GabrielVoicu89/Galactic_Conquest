@@ -14,7 +14,7 @@ class Battle extends Model
         'attacker_id',
         'defender_id',
         'win',
-        'resources_won',
+
     ];
 
     public function user()
