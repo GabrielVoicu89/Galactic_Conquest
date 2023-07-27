@@ -60,6 +60,7 @@ class UpdateOreResources extends Command
                 // Calculate the total warehouse capacity for the user
                 $totalCapacity = $db->table('warehouses')
                     ->where('user_id', $userId)
+                    ->where('finished_at', '<', Carbon::now())
                     ->sum('capacity');
 
                 // Get the current resources for the user

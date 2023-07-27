@@ -108,7 +108,7 @@ class BattleController extends Controller
             $resourceAttacker = Resource::where('user_id', Auth::user()->id)->first();
             $resourceDefender = Resource::where('user_id', $defenderId)->first();
 
-            //getting the furel for the attacker
+            //getting the fuel for the attacker
             $attackerFuel = $resourceAttacker->fuel;
 
             if ($fuelConsumed <= $attackerFuel) {
@@ -189,6 +189,21 @@ class BattleController extends Controller
                     $battle->defender_id = $defenderId;
                     $battle->win = true;
                     $battle->save();
+
+                    $winner =  User::where('id', Auth::user()->id)->first();
+                    $winner->update(['victories' => $winner->victories + 1]);
+
+                    return response()->json([
+                        // 'attackerShips' => $attackerShips,
+                        // 'defenderShips' => $defenderShips,
+                        // 'distance' => $distance,
+                        // 'fuelConsumed' => $fuelConsumed,
+                        // 'attackerFuel' => $attackerFuel,
+                        'battle_log' => $battleLog,
+                        'overall_winner' => $battleWinner,
+                        'gainedOre' => $gainedOre,
+                        'gainedFuel' => $gainedFuel
+                    ], 201);
                 } else {
 
                     // creating the battle column in the database if the attacker loose
@@ -197,24 +212,33 @@ class BattleController extends Controller
                     $battle->defender_id = $defenderId;
                     $battle->win = false;
                     $battle->save();
-                }
 
-                return response()->json([
-                    // 'attackerShips' => $attackerShips,
-                    // 'defenderShips' => $defenderShips,
-                    // 'distance' => $distance,
-                    // 'fuelConsumed' => $fuelConsumed,
-                    // 'attackerFuel' => $attackerFuel,
-                    'battle_log' => $battleLog,
-                    'overall_winner' => $battleWinner,
-                    'gainedOre' => $gainedOre,
-                    'gainedFuel' => $gainedFuel
-                ], 201);
+                    $winner =  User::where('id', $defenderId)->first();
+                    $winner->update(['victories' => $winner->victories + 1]);
+
+                    return response()->json([
+                        // 'attackerShips' => $attackerShips,
+                        // 'defenderShips' => $defenderShips,
+                        // 'distance' => $distance,
+                        // 'fuelConsumed' => $fuelConsumed,
+                        // 'attackerFuel' => $attackerFuel,
+                        'battle_log' => $battleLog,
+                        'overall_winner' => $battleWinner,
+
+                    ], 201);
+                }
             } else {
-                return response()->json(['message' => 'You do not have enough fuel for this destination.', 'fuelConsumed' => $fuelConsumed, 'attackerFuel' => $attackerFuel,], 401);
+                return response()->json(['message' => 'You do not have enough fuel for this destination.', 'fuelConsumed' => $fuelConsumed, 'distance' => $distance * 10], 401);
             }
         } else {
             return response()->json(['message' => 'You do not have any ship to attack with .'], 401);
         }
+    }
+
+    public function getRanking()
+    {
+        $ranking = User::orderBy('victories', 'desc')->get();
+
+        return response()->json($ranking, 200);
     }
 }

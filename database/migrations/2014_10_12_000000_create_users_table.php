@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('username', 50)->unique();
             $table->timestamp('birth_date');
             $table->string('password');
+            $table->integer('victories')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
