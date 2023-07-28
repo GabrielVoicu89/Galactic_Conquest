@@ -40,6 +40,9 @@ Route::post('/register/planet/{userId}', [AuthController::class, 'store_planet']
 Route::post('/resource/{userId}', [ResourceController::class, 'defaultResource'])->name('default_resource'); // acces it only once after creating the planet
 Route::post('/default_warehouses/{userId}', [WarehouseController::class, 'defaultWarehouses'])->name('default_warehouses'); // acces it only once after claiming the default resources
 
+//route mail:
+Route::post('/sendemailreset', [AuthController::class, 'sendEmailPasswordReset']);
+Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
 Route::middleware('auth:sanctum')->group(function () {

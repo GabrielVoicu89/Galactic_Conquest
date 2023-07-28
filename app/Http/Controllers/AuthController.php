@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ResetPasswordMail;
 use App\Models\Planet;
 use App\Models\User;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\SanctumServiceProvider;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -162,5 +164,80 @@ class AuthController extends Controller
         $user = User::where('id', Auth::user()->id)->get();
 
         return response()->json(['user' => $user], 200);
+    }
+
+
+
+
+
+    public function sendEmailPasswordReset(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:100'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 401);
+        }
+
+        // getting the user by email with the static function getEmail that is declared in User model
+        $user = User::getEmail($request->email);
+
+        // checking if the email belongs to an user
+        if (!empty($user)) {
+            //generating a token in the remember_token column
+            $user->remember_token = Str::random(30);
+            $user->save();
+
+            //sending the mail 
+            Mail::to($user->email)->send(new ResetPasswordMail($user));
+
+            return response()->json(['message' => 'Please check your email and reset your password'], 201);
+        } else {
+            return response()->json(['error' => 'Email not found in the system.'], 401);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:4',
+            'token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorsFormatted = [];
+
+            foreach ($errors as $field => $messages) {
+                $errorsFormatted[$field] = $messages[0];
+            }
+
+            return response()->json(['errors' => $errorsFormatted], 401);
+        }
+
+        $user = User::getToken($request->token);
+
+        if (!empty($user)) {
+
+            $data['user'] = $user;
+
+            $newPassword = $request->password;
+            $user->password = Hash::make($newPassword);
+            $user->remember_token = Str::random(30);
+            $user->save();
+
+            return response()->json(['message' => 'Password changed successfuly'], 201);
+        } else {
+            return response()->json(['message' => 'Wrong token'], 401);
+        }
     }
 }

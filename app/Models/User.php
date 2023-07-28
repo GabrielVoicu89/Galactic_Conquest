@@ -50,6 +50,19 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+
+    static public function getEmail($email)
+    {
+        return User::where('email', '=', $email)->first();
+    }
+
+    static public function getToken($remember_token)
+    {
+        return User::where('remember_token', '=', $remember_token)->first();
+    }
+
+
+
     public function planet()
     {
         return $this->hasOne(Planet::class);
