@@ -8,6 +8,7 @@ use App\Models\Ship;
 use App\Models\Planet;
 use App\Models\Resource;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -54,6 +55,9 @@ class BattleController extends Controller
 
     public function attack($defenderId)
     {
+
+        // TO DO condition for attacking urself
+
         //getting the ships for attacker and defender 
         $attackerShips = Ship::where('user_id', Auth::user()->id)
             ->where('finished_at', '<', Carbon::now())
@@ -171,9 +175,14 @@ class BattleController extends Controller
                     $totalAttackerOre = $resourceAttacker->ore + $gainedOre;
                     $totalAttackerFuel = $resourceAttacker->fuel + $gainedFuel;
 
-                    //updating the database for the attacker
-                    Resource::where('user_id', Auth::user()->id)->update(['ore' => $totalAttackerOre]);
-                    Resource::where('user_id', Auth::user()->id)->update(['fuel' => $totalAttackerFuel]);
+                    //getting the capacity of warehouses
+                    $totalCapacity = Warehouse::where('user_id', Auth::user()->id)
+                        ->where('finished_at', '<', Carbon::now())
+                        ->sum('capacity');
+
+                    //updating the database for the attacker with the limity of warehouses
+                    Resource::where('user_id', Auth::user()->id)->update(['ore' => min($totalAttackerOre, $totalCapacity)]);
+                    Resource::where('user_id', Auth::user()->id)->update(['fuel' => min($totalAttackerFuel, $totalCapacity)]);
 
                     //removing the gained resources from the defender
                     $totalDefenderOre = $resourceDefender->ore - $gainedOre;
