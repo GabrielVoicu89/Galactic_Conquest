@@ -91,4 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //BATTLES
     Route::post('/attack/{defenderId}', [BattleController::class, 'attack']);
     Route::get('/rankings', [BattleController::class, 'getRanking']);
+
+    //LOGOUT
+    Route::post('/logout', [AuthController::class, 'logout']);
 });

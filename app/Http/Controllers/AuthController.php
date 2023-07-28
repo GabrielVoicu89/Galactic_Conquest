@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ResetPasswordMail;
-use App\Models\Planet;
 use App\Models\User;
+use App\Models\Planet;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\SanctumServiceProvider;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -84,11 +85,7 @@ class AuthController extends Controller
             $user = User::where('username', $request->username)->first();
             $token = $user->createToken('MyAppToken')->plainTextToken;
 
-            // $request->session()->regenerate();
-            // Auth::login(Auth::user());
-
             return response()->json([
-                // to do token
                 'message' => 'Loged successfully',
                 'token' => $token
             ], 200);
@@ -194,14 +191,15 @@ class AuthController extends Controller
         // checking if the email belongs to an user
         if (!empty($user)) {
             //generating a token in the remember_token column
-            $user->remember_token = Str::random(30);
+            $user->remember_token = Str::random(64);
             $user->save();
 
             //sending the mail 
             Mail::to($user->email)->send(new ResetPasswordMail($user));
 
-            return response()->json(['message' => 'Please check your email and reset your password'], 201);
+            return response()->json(['message' => 'Please check your email to reset your password'], 201);
         } else {
+            //if the email does not exist in the database
             return response()->json(['error' => 'Email not found in the system.'], 401);
         }
     }
@@ -224,20 +222,26 @@ class AuthController extends Controller
             return response()->json(['errors' => $errorsFormatted], 401);
         }
 
+        // checking the token with the getToken 
         $user = User::getToken($request->token);
 
         if (!empty($user)) {
 
-            $data['user'] = $user;
-
+            //creating the new password and change the remember_token so it can't be used again
             $newPassword = $request->password;
             $user->password = Hash::make($newPassword);
-            $user->remember_token = Str::random(30);
+            $user->remember_token = Str::random(64);
             $user->save();
 
             return response()->json(['message' => 'Password changed successfuly'], 201);
         } else {
             return response()->json(['message' => 'Wrong token'], 401);
         }
+    }
+
+    public function logout()
+    {
+        DB::table('personal_access_tokens')->where('tokenable_id', Auth::user()->id)->delete();
+        return response()->json(['message' => 'Logout successfuly'], 201);
     }
 }
