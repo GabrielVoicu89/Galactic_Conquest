@@ -55,9 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //RESOURCE
     Route::get('/resource', [ResourceController::class, 'getResource']);
 
+    //INFRASTRUCTURE
+    Route::put('/infrastructures/{infrastructureId}/upgrade', [InfrastructureController::class, 'upgradeInfrastructure']);
+    Route::post('/infrastructures/{infrastructureId}/destroy', [InfrastructureController::class, 'destroyInfrastructure']);
+
     // MINE
     Route::post('/create/mine', [InfrastructureController::class, 'buildMine'])->name('store_mine');
     Route::get('/mines', [InfrastructureController::class, 'getMines'])->name('get_mines');
+
 
     //REFINERY
     Route::post('/create/refinery', [InfrastructureController::class, 'buildRefinery'])->name('store_refinery');
