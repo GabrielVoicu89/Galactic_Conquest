@@ -54,7 +54,7 @@ class InfrastructureController extends Controller
             // update resource table
             Resource::where('user_id', Auth::user()->id)->update(['ore' => $newAvailableOre, 'energy' => $newAvailableEnergy]);
 
-            return response()->json(['message' => 'Mine successfuly created', 'mine' => $mine], 200);
+            return response()->json(['message' => 'Mine successfuly created', 'mine' => $mine], 201);
         } else {
             return response()->json(['message' => 'You do not have enough resources'], 401);
         }
@@ -126,5 +126,63 @@ class InfrastructureController extends Controller
             ->get();
         // dd($warehouses);
         return response()->json(['mines' => $mines], 200);
+    }
+
+    public function upgradeInfrastructure($infrastructureId)
+    {
+        $infrastructure = Infrastructure::where('id', $infrastructureId)->first();
+        $nextLevel = $infrastructure->level + 1;
+        $upgradeCost = $infrastructure->construction_cost * 1.5 * $nextLevel;
+
+        $resources = Resource::where('user_id', Auth::user()->id)->first();
+        $availableOre = $resources->ore;
+        $availableEnergy = $resources->energy;
+        if ($infrastructure->user_id === Auth::user()->id) {
+            if ($availableOre >= $upgradeCost && $availableEnergy >= 1) {
+                $infrastructure->level = $nextLevel;
+                $infrastructure->production_hour = (int) round($infrastructure->production_hour * 1.1);
+                // $infrastructure->energy_consumption += 1;
+                $infrastructure->construction_cost = $upgradeCost;
+                $infrastructure->update();
+
+                $resources->ore = $availableOre - $upgradeCost;
+                $resources->energy -= 1;
+                $resources->update();
+
+
+                return response()->json(['message' => 'Infrastructure upgraded successfully'], 201);
+            } else {
+                return response()->json(['message' => 'You do not have enough resources for the upgrade. You need ' . $upgradeCost . ' ore and 1 energy.'], 401);
+            }
+        } else {
+            return response()->json(['error' => 'You do not own this infrastructure'], 401);
+        }
+    }
+
+    public function destroyInfrastructure($infrastructureId)
+    {
+        $infrastructure = Infrastructure::where('id', $infrastructureId)->first();
+        $constructionCost = $infrastructure->construction_cost;
+
+        if ($infrastructure->user_id === Auth::user()->id) {
+            if ($infrastructure) {
+                // Calculate the amount to be refunded upon destruction (50% of initial construction cost)
+                $refundAmount = round($constructionCost * 0.5);
+
+                // Increase the player's resources by the refund amount
+                $resources = Resource::where('user_id', Auth::user()->id)->first();
+                $resources->ore += $refundAmount;
+                $resources->update();
+
+
+                $infrastructure->delete();
+
+                return response()->json(['message' => 'Infrastructure destroyed successfully. You received ' . $refundAmount . ' ore as a refund.'], 201);
+            } else {
+                return response()->json(['message' => 'The infrastructure is already destroyed.'], 401);
+            }
+        } else {
+            return response()->json(['error' => 'You do not own this infrastructure'], 401);
+        }
     }
 }
